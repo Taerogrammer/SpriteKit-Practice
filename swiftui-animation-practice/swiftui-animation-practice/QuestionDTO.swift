@@ -34,6 +34,9 @@ struct QuestionDTO: Decodable {
     let sentenceMeaning: String
     let sentenceMeaningCN: String
     
+    // BE 동사 목록
+    static let beVerbs = ["AM", "IS", "ARE", "WAS", "WERE", "BEEN", "BEING", "BE"]
+
     /// `questionUC`에서 괄호와 '/'를 제거하고 단어들을 배열로 반환하는 메서드
     func parsedQuestionText() -> [String] {
         let cleanedString = self.questionUC
@@ -46,6 +49,68 @@ struct QuestionDTO: Decodable {
             .components(separatedBy: .whitespacesAndNewlines)
             .filter { !$0.isEmpty }
     }
+    
+    /// `questionUC`를 파싱해서 TextResponse 배열로 반환하는 메서드
+    func parseToTextResponses() -> [TextResponse] {
+        var textResponses: [TextResponse] = []
+        let questionUC = self.questionUC
+        var currentIndex = questionUC.startIndex
+        
+        while currentIndex < questionUC.endIndex {
+            if questionUC[currentIndex] == "(" {
+                guard let closeParenIndex = questionUC[currentIndex...].firstIndex(of: ")") else {
+                    break
+                }
+                
+                // 괄호 안의 내용 추출
+                let startIndex = questionUC.index(after: currentIndex)
+                let bracketContent = String(questionUC[startIndex..<closeParenIndex])
+                
+                // '/'로 분리된 단어들 처리
+                let options = bracketContent.components(separatedBy: "/")
+                for option in options {
+                    let trimmedOption = option.trimmingCharacters(in: .whitespacesAndNewlines)
+                    if !trimmedOption.isEmpty {
+                        textResponses.append(TextResponse(type: .question, word: trimmedOption))
+                    }
+                }
+                
+                currentIndex = questionUC.index(after: closeParenIndex)
+            } else {
+                // 일반 단어 처리
+                var wordEndIndex = currentIndex
+                
+                // 다음 괄호나 문자열 끝까지 찾기
+                while wordEndIndex < questionUC.endIndex && questionUC[wordEndIndex] != "(" {
+                    wordEndIndex = questionUC.index(after: wordEndIndex)
+                }
+                
+                let wordSection = String(questionUC[currentIndex..<wordEndIndex])
+                
+                // 공백으로 분리해서 개별 단어 처리
+                let words = wordSection
+                    .components(separatedBy: .whitespacesAndNewlines)
+                    .filter { !$0.isEmpty }
+                
+                for word in words {
+                    let cleanWord = word.trimmingCharacters(in: CharacterSet.punctuationCharacters)
+                    if !cleanWord.isEmpty {
+                        let type: LogType = Self.beVerbs.contains(cleanWord.uppercased()) ? .beVerb : .subject
+                        textResponses.append(TextResponse(type: type, word: cleanWord))
+                    }
+                }
+                
+                currentIndex = wordEndIndex
+            }
+        }
+        
+        return textResponses
+    }
+}
+
+struct TextResponse {
+    var type: LogType
+    let word: String
 }
 
 // MARK: - QuestionsResponse
