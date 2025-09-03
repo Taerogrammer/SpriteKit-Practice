@@ -17,7 +17,7 @@ struct LogContainerView: View {
     var body: some View {
         HStack(spacing: spacing) {
             ForEach(1...logCount, id: \.self) { index in
-                LogView(logNumber: index, size: size)
+                LogView(text: String(index), type: .subject, size: size)
             }
             .onAppear {
                 loadQuestions()
@@ -44,19 +44,44 @@ struct LogContainerView: View {
 }
 
 struct LogView: View {
-    let logNumber: Int
+    let text: String
+    let type: LogType
     let size: CGFloat // 이제 height 기준
-    
+
+    @State private var currentImageIndex = 0
+    private let questionImageNames = ["blank_1", "blank_2"]
+    private let timer = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
+
     var body: some View {
         ZStack {
-            // 통나무 - 실제 비율 적용
-            Image("log")
-                .frame(
-                    width: size * GameConstants.logImageAspectRatio,
-                    height: size
-                )
+            switch type {
+            case .subject:
+                // 통나무 - 실제 비율 적용
+                Image("log")
+                    .frame(
+                        width: size * GameConstants.logImageAspectRatio,
+                        height: size
+                    )
 
-            Text("\(logNumber)")
+            case .beVerb:
+                // 통나무 - 실제 비율 적용
+                Image("leaf")
+                    .frame(
+                        width: size * GameConstants.logImageAspectRatio,
+                        height: size
+                    )
+            case .question:
+                // 통나무 - 실제 비율 적용
+                Image(questionImageNames[currentImageIndex])
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: size)
+                    // 타이머로부터 이벤트를 받을 때마다 currentImageIndex 변경
+                    .onReceive(timer) { _ in
+                        currentImageIndex = (currentImageIndex + 1) % questionImageNames.count
+                    }
+            }
+            Text(text)
                 .font(.system(size: size * 0.3))
                 .fontWeight(.bold)
                 .foregroundColor(.white)
@@ -71,5 +96,5 @@ enum LogType {
 }
 
 #Preview(traits: .landscapeLeft) {
-    LogView(logNumber: 3, size: 160)
+    LogView(text: "IT", type: .question, size: 160)
 }
