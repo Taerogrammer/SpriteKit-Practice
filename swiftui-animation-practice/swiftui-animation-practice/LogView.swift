@@ -7,17 +7,17 @@
 
 import SwiftUI
 
-struct LogView: View {
-    var body: some View {
-        HStack(spacing: 12) {
-            Image("log")
-            Image("log")
-            Image("log")
-        }
-        .padding(.leading, 40)
-    }
-}
+//struct LogView: View {
+//    var body: some View {
+//        HStack(spacing: 12) {
+//            Image("log")
+//            Image("log")
+//            Image("log")
+//        }
+//        .padding(.leading, 40)
+//    }
+//}
 
 #Preview(traits: .landscapeLeft) {
-    LogView()
+    LogView(logNumber: 3, size: 40)
 }
