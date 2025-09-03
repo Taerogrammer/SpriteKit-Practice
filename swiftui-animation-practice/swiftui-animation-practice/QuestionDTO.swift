@@ -33,6 +33,19 @@ struct QuestionDTO: Decodable {
     let questionUuid: String
     let sentenceMeaning: String
     let sentenceMeaningCN: String
+    
+    /// `questionUC`에서 괄호와 '/'를 제거하고 단어들을 배열로 반환하는 메서드
+    func parsedQuestionText() -> [String] {
+        let cleanedString = self.questionUC
+            .replacingOccurrences(of: "(", with: " ")
+            .replacingOccurrences(of: ")", with: " ")
+            .replacingOccurrences(of: "/", with: " ")
+        
+        // 공백을 기준으로 문자열을 분리하고 빈 문자열을 제거
+        return cleanedString
+            .components(separatedBy: .whitespacesAndNewlines)
+            .filter { !$0.isEmpty }
+    }
 }
 
 // MARK: - QuestionsResponse
