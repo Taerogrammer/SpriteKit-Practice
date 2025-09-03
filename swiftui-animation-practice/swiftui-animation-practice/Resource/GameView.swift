@@ -8,14 +8,14 @@
 import SwiftUI
 
 struct GameView: View {
-    // MARK: - 애니메이션 상태 변수
-    @State private var animateScroll = false
-
     
+    // MARK: - 애니메이션 상태 변수
+    @State private var isAnimating = false
+
     var body: some View {
         GeometryReader { geometry in
             let totalContentWidth = GameConstants.calculateTotalContentWidth(for: geometry.size)
-
+            
             // 캐릭터 크기 계산
             let characterHeight = geometry.size.height * CharacterConstants.characterSizeRatio
             let characterWidth = characterHeight * CharacterConstants.characterImageAspectRatio
@@ -30,7 +30,6 @@ struct GameView: View {
             // 캐릭터 Y 위치 계산
             let characterYPos = geometry.size.height - characterHeight - (firstLogHeight * 1.75)
 
-            // MARK: - ScrollViewReader를 사용하여 스크롤 제어
             ScrollViewReader { proxy in
                 ScrollView(.horizontal, showsIndicators: false) {
                     ZStack(alignment: .leading) {
@@ -40,7 +39,7 @@ struct GameView: View {
                             .frame(width: totalContentWidth, height: geometry.size.height, alignment: .leading)
                             .clipped()
                             .ignoresSafeArea()
-                            .id("background") // 애니메이션을 위한 ID 설정
+                            .id("background")
                         
                         CharacterView()
                             .frame(width: characterWidth, height: characterHeight)
@@ -80,22 +79,34 @@ struct GameView: View {
                     }
                     .frame(width: totalContentWidth)
                 }
+                .allowsHitTesting(!isAnimating)
                 .onAppear {
                     UIScrollView.appearance().bounces = false
                     
-                    // MARK: - 애니메이션 로직
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    isAnimating = true // 애니메이션 시작
+                    
+                    Task {
+                        // 0.5초 대기
+                        try await Task.sleep(nanoseconds: 500_000_000)
+                        
+                        // 첫 번째 스크롤 애니메이션 (오른쪽으로)
                         withAnimation(.easeOut(duration: 1.5)) {
-                            // 전체 콘텐츠 너비만큼 스크롤
                             proxy.scrollTo("background", anchor: .trailing)
                         }
                         
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.8) {
-                            withAnimation(.easeInOut(duration: 1.5)) {
-                                // 2초 후 다시 초기 위치로 돌아옴
-                                proxy.scrollTo("background", anchor: .leading)
-                            }
+                        // 첫 번째 애니메이션이 끝날 때까지 대기
+                        try await Task.sleep(nanoseconds: 1_500_000_000)
+                        
+                        // 두 번째 스크롤 애니메이션 (왼쪽으로)
+                        withAnimation(.easeInOut(duration: 1.5)) {
+                            proxy.scrollTo("background", anchor: .leading)
                         }
+                        
+                        // 두 번째 애니메이션이 끝날 때까지 대기
+                        try await Task.sleep(nanoseconds: 1_500_000_000)
+                        
+                        // 모든 애니메이션이 끝난 후 터치 허용
+                        isAnimating = false
                     }
                 }
             }
