@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct GameView: View {
-    
     // MARK: - 애니메이션 상태 변수
     @State private var isAnimating = false
 

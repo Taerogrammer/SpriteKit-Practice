@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct LogContainerView: View {
+    @State private var questions: [QuestionDTO]?
+
     let logCount: Int
     let size: CGFloat
     let spacing: CGFloat
@@ -17,6 +19,26 @@ struct LogContainerView: View {
             ForEach(1...logCount, id: \.self) { index in
                 LogView(logNumber: index, size: size)
             }
+            .onAppear {
+                loadQuestions()
+            }
+        }
+    }
+    
+    // MARK: - JSON 로드 로직
+    private func loadQuestions() {
+        guard let url = Bundle.main.url(forResource: "questions", withExtension: "json") else {
+            print("Error: questions.json 파일을 찾을 수 없습니다.")
+            return
+        }
+        
+        do {
+            let data = try Data(contentsOf: url)
+            let response = try QuestionsResponse.from(jsonData: data)
+            self.questions = response.questions
+            print("Response:", response)
+        } catch {
+            print("Error decoding JSON: \(error)")
         }
     }
 }
