@@ -10,15 +10,15 @@ import SwiftUI
 struct ContentView: View {
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            ZStack {
+            ZStack(alignment: .leading) {
                 Image("bg")
                     .resizable()
                     .scaledToFill()
                 
+                LogAndEndingView()
+                    .padding(.leading, 280)
             }
-            
         }
-        .ignoresSafeArea()
         .onAppear {
             UIScrollView.appearance().bounces = false
         }
