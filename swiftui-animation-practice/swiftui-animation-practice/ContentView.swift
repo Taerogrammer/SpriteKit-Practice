@@ -12,23 +12,25 @@ struct GameConstants {
     static let logCount: Int = 4
     static let leadingPaddingRatio: CGFloat = 0.18
     static let logSizeRatio: CGFloat = 0.18
-    static let logSpacing: CGFloat = 180 // 모든 간격을 동일하게
+    static let logSpacing: CGFloat = 120
+    static let containerSpacing: CGFloat = 40
+    static let logImageAspectRatio: CGFloat = 293.0 / 215.0
     static let endingImageAspectRatio: CGFloat = 343.0 / 721.0
     
     static func calculateMaxOffset(for screenSize: CGSize) -> CGFloat {
         let leadingPadding = screenSize.width * leadingPaddingRatio
-        let logSize = screenSize.height * logSizeRatio
+        let logHeight = screenSize.height * logSizeRatio
+        let logWidth = logHeight * logImageAspectRatio // 실제 비율 적용
         let endingImageWidth = screenSize.height * endingImageAspectRatio
         
-        // 실제 콘텐츠 너비 계산
-        let logContainerWidth = (CGFloat(logCount) * logSize) + (CGFloat(logCount - 1) * logSpacing)
+        let logContainerWidth = (CGFloat(logCount) * logWidth) + (CGFloat(logCount - 1) * logSpacing)
         
-        let totalContentWidth = leadingPadding + logContainerWidth + logSpacing + endingImageWidth
+        let totalContentWidth = leadingPadding + logContainerWidth + containerSpacing + endingImageWidth
         
         return max(0, totalContentWidth - screenSize.width)
     }
-    
 }
+
 
 struct ContentView: View {
     var body: some View {
@@ -36,7 +38,7 @@ struct ContentView: View {
             GameView()
                 .limitedScroll(
                     minOffset: 0,
-                    maxOffset: GameConstants.calculateMaxOffset(for: geometry.size)
+                    maxOffset: GameConstants.calculateMaxOffset(for: geometry.size) + 200
                 )
                 .ignoresSafeArea()
         }
@@ -58,7 +60,7 @@ struct GameView: View {
                     .clipped()
                     .ignoresSafeArea()
                 
-                HStack(spacing: 60) {
+                HStack(spacing: GameConstants.containerSpacing) {
                     LogContainerView(
                         logCount: GameConstants.logCount,
                         size: geometry.size.height * GameConstants.logSizeRatio,
@@ -69,17 +71,6 @@ struct GameView: View {
                         .resizable()
                         .scaledToFit()
                         .frame(height: geometry.size.height)
-                        .background(
-                            GeometryReader { endingGeometry in
-                                Color.clear
-                                    .onAppear {
-                                        let globalFrame = endingGeometry.frame(in: .global)
-                                        let localFrame = endingGeometry.frame(in: .local)
-                                        print("Ending global X: \(globalFrame.origin.x)")
-                                        print("Ending local X: \(localFrame.origin.x)")
-                                    }
-                            }
-                        )
                 }
                 .padding(.leading, geometry.size.width * GameConstants.leadingPaddingRatio)
             }
@@ -103,15 +94,17 @@ struct LogContainerView: View {
 
 struct LogView: View {
     let logNumber: Int
-    let size: CGFloat
+    let size: CGFloat // 이제 height 기준
     
     var body: some View {
         ZStack {
-            // 통나무
+            // 통나무 - 실제 비율 적용
             Image("log")
-                .frame(width: size, height: size)
+                .frame(
+                    width: size * GameConstants.logImageAspectRatio,
+                    height: size
+                )
 
-            // 통나무 위 텍스트
             Text("\(logNumber)")
                 .font(.system(size: size * 0.3))
                 .fontWeight(.bold)
