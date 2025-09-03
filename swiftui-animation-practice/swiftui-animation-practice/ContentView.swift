@@ -10,14 +10,15 @@ import SwiftUI
 // MARK: - Game Constants
 struct GameConstants {
     static let logCount: Int = 4
-    static let leadingPaddingRatio: CGFloat = 0.06
+    static let leadingPaddingRatio: CGFloat = 0.18
     static let logSizeRatio: CGFloat = 0.18
     static let logSpacing: CGFloat = 180 // 모든 간격을 동일하게
+    static let endingImageAspectRatio: CGFloat = 343.0 / 721.0
     
     static func calculateMaxOffset(for screenSize: CGSize) -> CGFloat {
         let leadingPadding = screenSize.width * leadingPaddingRatio
         let logSize = screenSize.height * logSizeRatio
-        let endingImageWidth = screenSize.height // ending은 전체 높이
+        let endingImageWidth = screenSize.height * endingImageAspectRatio
         
         // 실제 콘텐츠 너비 계산
         let logContainerWidth = (CGFloat(logCount) * logSize) + (CGFloat(logCount - 1) * logSpacing)
