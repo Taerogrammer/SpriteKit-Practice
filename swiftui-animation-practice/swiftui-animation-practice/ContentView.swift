@@ -12,7 +12,7 @@ struct GameConstants {
     static let logCount: Int = 4
     static let leadingPaddingRatio: CGFloat = 0.06
     static let logSizeRatio: CGFloat = 0.18
-    static let uniformSpacing: CGFloat = 180 // 모든 간격을 동일하게
+    static let logSpacing: CGFloat = 180 // 모든 간격을 동일하게
     
     static func calculateMaxOffset(for screenSize: CGSize) -> CGFloat {
         let leadingPadding = screenSize.width * leadingPaddingRatio
@@ -20,9 +20,9 @@ struct GameConstants {
         let endingImageWidth = screenSize.height // ending은 전체 높이
         
         // 실제 콘텐츠 너비 계산
-        let logContainerWidth = (CGFloat(logCount) * logSize) + (CGFloat(logCount - 1) * uniformSpacing)
+        let logContainerWidth = (CGFloat(logCount) * logSize) + (CGFloat(logCount - 1) * logSpacing)
         
-        let totalContentWidth = leadingPadding + logContainerWidth + uniformSpacing + endingImageWidth
+        let totalContentWidth = leadingPadding + logContainerWidth + logSpacing + endingImageWidth
         
         return max(0, totalContentWidth - screenSize.width)
     }
@@ -61,7 +61,7 @@ struct GameView: View {
                     LogContainerView(
                         logCount: GameConstants.logCount,
                         size: geometry.size.height * GameConstants.logSizeRatio,
-                        spacing: GameConstants.uniformSpacing // 통나무들끼리는 180 간격
+                        spacing: GameConstants.logSpacing // 통나무들끼리는 180 간격
                     )
 
                     Image("ending")
