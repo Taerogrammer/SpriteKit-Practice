@@ -56,6 +56,24 @@ struct GameView: View {
                             .frame(height: geometry.size.height)
                     }
                     .padding(.leading, geometry.size.width * GameConstants.leadingPaddingRatio)
+                    
+                    VStack(alignment: .leading) {
+                        Spacer()
+                        HStack(spacing: 16) {
+                            Button {
+                                print("zz")
+                            } label: {
+                                Image("btn_right")
+                            }
+                            
+                            Button {
+                                print("오답")
+                            } label: {
+                                Image("btn_wrong")
+                            }
+                        }
+                    }
+                    .padding()
                 }
                 .frame(width: totalContentWidth)
             }
