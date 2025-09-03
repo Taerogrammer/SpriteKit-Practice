@@ -42,6 +42,12 @@ struct LogView: View {
     }
 }
 
+enum LogType {
+    case subject    // 주어
+    case beVerb     // be동사
+    case question   // 맞춰야 하는 것
+}
+
 #Preview(traits: .landscapeLeft) {
     LogView(logNumber: 3, size: 160)
 }
