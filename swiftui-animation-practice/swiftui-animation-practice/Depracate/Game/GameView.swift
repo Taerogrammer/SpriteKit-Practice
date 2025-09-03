@@ -7,24 +7,24 @@
 
 import SwiftUI
 
-struct GameView: View {
+struct DepGameView: View {
     // MARK: - 애니메이션 상태 변수
     @State private var isAnimating = false
 
     var body: some View {
         GeometryReader { geometry in
-            let totalContentWidth = GameConstants.calculateTotalContentWidth(for: geometry.size)
+            let totalContentWidth = DepGameConstants.calculateTotalContentWidth(for: geometry.size)
             
             // 캐릭터 크기 계산
             let characterHeight = geometry.size.height * CharacterConstants.characterSizeRatio
             let characterWidth = characterHeight * CharacterConstants.characterImageAspectRatio
             
             // 첫 번째 통나무의 높이와 너비
-            let firstLogHeight = geometry.size.height * GameConstants.logSizeRatio
-            let firstLogWidth = firstLogHeight * GameConstants.logImageAspectRatio
+            let firstLogHeight = geometry.size.height * DepGameConstants.logSizeRatio
+            let firstLogWidth = firstLogHeight * DepGameConstants.logImageAspectRatio
             
             // 캐릭터 X 위치 계산
-            let characterXPos = (geometry.size.width * GameConstants.leadingPaddingRatio) + (firstLogWidth / 2) - (characterWidth / 2)
+            let characterXPos = (geometry.size.width * DepGameConstants.leadingPaddingRatio) + (firstLogWidth / 2) - (characterWidth / 2)
             
             // 캐릭터 Y 위치 계산
             let characterYPos = geometry.size.height - characterHeight - (firstLogHeight * 1.75)
@@ -39,25 +39,20 @@ struct GameView: View {
                             .clipped()
                             .ignoresSafeArea()
                             .id("background")
-                        
+
                         CharacterView()
                             .frame(width: characterWidth, height: characterHeight)
                             .position(x: characterXPos, y: characterYPos)
-                        
-                        HStack(spacing: GameConstants.containerSpacing) {
+                    
+                        HStack {
                             LogContainerView(
-                                logCount: GameConstants.logCount,
-                                size: geometry.size.height * GameConstants.logSizeRatio,
+                                logCount: DepGameConstants.logCount,
+                                size: geometry.size.height * DepGameConstants.logSizeRatio,
                                 spacing: GameConstants.logSpacing
                             )
-                            
-                            Image("ending")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(height: geometry.size.height)
                         }
-                        .padding(.leading, geometry.size.width * GameConstants.leadingPaddingRatio)
-                        
+                        .padding(.leading, geometry.size.width * DepGameConstants.leadingPaddingRatio)
+                      
                         VStack(alignment: .leading) {
                             Spacer()
                             HStack(spacing: 16) {
@@ -138,6 +133,6 @@ struct CharacterView: View {
 }
 
 #Preview(traits: .landscapeLeft) {
-    GameView()
+    DepGameView()
         .ignoresSafeArea()
 }

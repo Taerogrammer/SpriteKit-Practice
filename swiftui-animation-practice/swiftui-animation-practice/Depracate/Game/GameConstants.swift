@@ -8,12 +8,11 @@
 import Foundation
 
 // MARK: - Game Constants
-struct GameConstants {
+struct DepGameConstants {
     static let logCount: Int = 4
     static let leadingPaddingRatio: CGFloat = 0.24
     static let logSizeRatio: CGFloat = 0.18
     static let logSpacing: CGFloat = 120
-    static let containerSpacing: CGFloat = 40
     static let logImageAspectRatio: CGFloat = 293.0 / 215.0
     static let endingImageAspectRatio: CGFloat = 343.0 / 721.0
     
@@ -21,10 +20,11 @@ struct GameConstants {
         let leadingPadding = screenSize.width * leadingPaddingRatio
         let logHeight = screenSize.height * logSizeRatio
         let logWidth = logHeight * logImageAspectRatio
-        let endingImageWidth = screenSize.height * endingImageAspectRatio
+        let endingImageWidth = logHeight * endingImageAspectRatio // ending image의 높이를 logHeight에 맞춤
         
-        let logContainerWidth = (CGFloat(logCount) * logWidth) + (CGFloat(logCount - 1) * logSpacing)
+        let logsWidth = (CGFloat(logCount) * logWidth) + (CGFloat(logCount - 1) * logSpacing)
+        let logContainerTotalWidth = logsWidth + logSpacing + endingImageWidth
         
-        return leadingPadding + logContainerWidth + containerSpacing + endingImageWidth
+        return leadingPadding + logContainerTotalWidth
     }
 }

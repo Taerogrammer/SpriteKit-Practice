@@ -50,6 +50,11 @@ struct LogContainerView: View {
                             }
                         }
                     }
+                    Image("ending")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: size / DepGameConstants.logSizeRatio)
+                        .ignoresSafeArea()
                 }
             } else {
                 // 데이터 로딩 중일 때 기본 레이아웃
@@ -104,7 +109,7 @@ struct LogContainerView: View {
             // 첫 번째 질문의 TextResponse 배열 확인
             if let firstQuestion = response.questions.first {
                 let textResponses = firstQuestion.parseToTextResponses()
-                print("TextResponses:", textResponses.map { "(\($0.type): \($0.word))" })
+//                print("TextResponses:", textResponses.map { "(\($0.type): \($0.word))" })
             }
         } catch {
             print("Error decoding JSON: \(error)")
@@ -122,6 +127,7 @@ struct LogContainerView: View {
         currentQuestionIndex = currentQuestionIndex > 0 ? currentQuestionIndex - 1 : questions.count - 1
     }
 }
+
 struct LogView: View {
     let text: String
     let type: LogType
@@ -138,7 +144,7 @@ struct LogView: View {
                 // 통나무 - 실제 비율 적용
                 Image("log")
                     .frame(
-                        width: size * GameConstants.logImageAspectRatio,
+                        width: size * DepGameConstants.logImageAspectRatio,
                         height: size
                     )
 
@@ -146,14 +152,14 @@ struct LogView: View {
                 // 통나무 - 실제 비율 적용
                 Image("leaf")
                     .frame(
-                        width: size * GameConstants.logImageAspectRatio,
+                        width: size * DepGameConstants.logImageAspectRatio,
                         height: size
                     )
             case .question:
                 // 통나무 - 실제 비율 적용
                 Image(questionImageNames[currentImageIndex])
                     .frame(
-                        width: size * GameConstants.logImageAspectRatio,
+                        width: size * DepGameConstants.logImageAspectRatio,
                         height: size
                     )
                     // 타이머로부터 이벤트를 받을 때마다 currentImageIndex 변경
@@ -176,5 +182,7 @@ enum LogType {
 }
 
 #Preview(traits: .landscapeLeft) {
-    LogContainerView(logCount: 5, size: 180, spacing: 180)
+    ScrollView(.horizontal, showsIndicators: false) {
+        LogContainerView(logCount: 5, size: 180, spacing: 180)
+    }
 }

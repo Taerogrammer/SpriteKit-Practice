@@ -7,13 +7,13 @@
 
 import SwiftUI
 
-struct ContentView: View {
+struct DepContentView: View {
     var body: some View {
-        GameView()
+        DepGameView()
             .ignoresSafeArea()
     }
 }
 
 #Preview(traits: .landscapeLeft) {
-    ContentView()
+    DepContentView()
 }
