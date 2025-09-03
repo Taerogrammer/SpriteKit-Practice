@@ -19,6 +19,12 @@ struct LogAndEndingView: View {
                 .scaledToScreen()
         }
         .frame(height: UIScreen.main.bounds.height)
+        .background(
+            GeometryReader { geometry in
+                Color.clear
+                    .preference(key: SizePreferenceKey.self, value: geometry.size)
+            }
+        )
     }
 }
 
@@ -28,5 +34,13 @@ struct LogAndEndingView: View {
     }
     .onAppear {
         UIScrollView.appearance().bounces = false
+    }
+}
+
+struct SizePreferenceKey: PreferenceKey {
+    static var defaultValue: CGSize = .zero
+    
+    static func reduce(value: inout CGSize, nextValue: () -> CGSize) {
+        value = nextValue()
     }
 }
