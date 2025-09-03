@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct LogContainerView: View {
+struct DepLogContainerView: View {
     @State private var questions: [QuestionDTO]?
     @State private var currentQuestionIndex: Int = 0
     
@@ -30,7 +30,7 @@ struct LogContainerView: View {
                             // question 타입들은 VStack으로 세로 배치
                             VStack(spacing: spacing / 2) {
                                 ForEach(Array(group.enumerated()), id: \.offset) { _, response in
-                                    LogView(
+                                    DepLogView(
                                         text: response.word,
                                         type: response.type,
                                         size: size
@@ -41,7 +41,7 @@ struct LogContainerView: View {
                             // subject, beVerb 타입들은 HStack으로 가로 배치
                             HStack(spacing: spacing / 2) {
                                 ForEach(Array(group.enumerated()), id: \.offset) { _, response in
-                                    LogView(
+                                    DepLogView(
                                         text: response.word,
                                         type: response.type,
                                         size: size
@@ -60,7 +60,7 @@ struct LogContainerView: View {
                 // 데이터 로딩 중일 때 기본 레이아웃
                 HStack(spacing: spacing) {
                     ForEach(1...logCount, id: \.self) { index in
-                        LogView(text: String(index), type: .subject, size: size)
+                        DepLogView(text: String(index), type: .subject, size: size)
                     }
                 }
             }
@@ -128,7 +128,7 @@ struct LogContainerView: View {
     }
 }
 
-struct LogView: View {
+struct DepLogView: View {
     let text: String
     let type: LogType
     let size: CGFloat // 이제 height 기준
@@ -183,6 +183,6 @@ enum LogType {
 
 #Preview(traits: .landscapeLeft) {
     ScrollView(.horizontal, showsIndicators: false) {
-        LogContainerView(logCount: 5, size: 180, spacing: 180)
+        DepLogContainerView(logCount: 5, size: 180, spacing: 180)
     }
 }

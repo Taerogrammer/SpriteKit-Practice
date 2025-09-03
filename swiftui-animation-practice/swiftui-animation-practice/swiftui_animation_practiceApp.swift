@@ -11,7 +11,7 @@ import SwiftUI
 struct swiftui_animation_practiceApp: App {
     var body: some Scene {
         WindowGroup {
-            DepContentView()
+            ContentView()
         }
     }
 }

@@ -45,10 +45,10 @@ struct DepGameView: View {
                             .position(x: characterXPos, y: characterYPos)
                     
                         HStack {
-                            LogContainerView(
+                            DepLogContainerView(
                                 logCount: DepGameConstants.logCount,
                                 size: geometry.size.height * DepGameConstants.logSizeRatio,
-                                spacing: GameConstants.logSpacing
+                                spacing: DepGameConstants.logSpacing
                             )
                         }
                         .padding(.leading, geometry.size.width * DepGameConstants.leadingPaddingRatio)
