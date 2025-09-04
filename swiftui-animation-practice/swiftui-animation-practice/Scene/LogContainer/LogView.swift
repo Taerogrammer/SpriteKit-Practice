@@ -16,7 +16,7 @@ struct LogView: View {
                 .scaledToScreen()
 
             Text("숫자")
-                .font(.system(size: 36, weight: .bold, design: .default))
+                .font(.system(size: UIScreen.main.bounds.height / 16, weight: .bold, design: .default))
                 .foregroundColor(.white)
                 .scaledToScreen()
         }
