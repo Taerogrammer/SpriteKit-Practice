@@ -12,26 +12,27 @@ struct ContentView: View {
    
    var body: some View {
        GeometryReader { geometry in
+           let paddingRatio: CGFloat = 0.2
+           let leadingPadding = geometry.size.width * paddingRatio
            ScrollViewReader { proxy in
                ScrollView(.horizontal, showsIndicators: false) {
                    ZStack(alignment: .leading) {
                        Image("bg")
                            .resizable()
                            .scaledToFill()
-                           .frame(width: 280 + logEndingViewSize.width,
-                                  height: geometry.size.height,
+                           .frame(width: leadingPadding + logEndingViewSize.width,
                                   alignment: .leading)
                            .clipped()
                            .id("background")
                        
                        LogAndEndingView()
-                           .padding(.leading, 280)
+                           .padding(.leading, leadingPadding)
                            .id("ending")
                            .onPreferenceChange(SizePreferenceKey.self) { size in
                                logEndingViewSize = size
                            }
                    }
-                   .frame(width: 280 + logEndingViewSize.width)
+                   .frame(width: leadingPadding + logEndingViewSize.width)
                }
                .clipped()
            }
