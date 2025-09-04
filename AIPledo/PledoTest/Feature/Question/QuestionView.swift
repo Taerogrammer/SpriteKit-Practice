@@ -15,7 +15,12 @@ struct QuestionView: View {
     private let rightOffset: CGFloat = 80
     private let bridgeSpacing: CGFloat = 20
     private let leftPaddingScale: CGFloat = 0.2
-    
+
+    // 애니메이션을 위한 상태 추가
+    @State private var characterOffsetX: CGFloat = 0
+    @State private var currentLogIndex: Int = 0
+    @State private var isAnimating: Bool = false
+
     let store: StoreOf<QuestionStore>
     
     var body: some View {
@@ -43,10 +48,10 @@ struct QuestionView: View {
                                    height: UIImage.berryIdle.size.height * scaleFactor,
                                    alignment: .leading)
                             .background(.red)
-                        // -UIImage.berryIdle.size.width * scaleFactor * 0.5 => x = 0에서 캐릭터 절반으로 잘림
-                            .offset(x: -UIImage.berryIdle.size.width * scaleFactor * 0.5 + UIScreen.main.bounds.width * leftPaddingScale * 0.33,
+                            .offset(x: getInitialCharacterOffsetX() + characterOffsetX,
                                     y: -UIScreen.main.bounds.height * 0.2)
-                        
+                            .zIndex(1.0)
+
                         // MARK: - 통나무 + 나뭇잎 + 배경 끝단
                         HStack(spacing: bridgeSpacing) { // 통나무 사이의 간격
                             // MARK: - 왼쪽 여백
@@ -189,6 +194,7 @@ struct QuestionView: View {
                     // MARK: - 정답
                     Button {
                         store.send(.showCorrectAnswer)
+                        startCharacterAnimation()
                     } label: {
                         Image(uiImage: .btnCorrect)
                             .resizable()
@@ -254,7 +260,11 @@ struct QuestionView: View {
         .ignoresSafeArea()
         .onAppear {
             store.send(.onAppear)
-            printCharacterAndLogPositions()
+        }
+        .onChange(of: store.state.tokenQuestionText) { newValue in
+            if !newValue.isEmpty {
+                printCharacterAndLogPositions()
+            }
         }
         .overlay {
             if store.state.isShowingAnswer {
@@ -277,7 +287,66 @@ struct QuestionView: View {
         
         return screen / original
     }
-    
+
+    // MARK: - 애니메이션 관련 함수들
+
+    /// 캐릭터의 초기 X 오프셋 계산
+    func getInitialCharacterOffsetX() -> CGFloat {
+        let characterWidth = UIImage.berryIdle.size.width * scaleFactor
+        return -characterWidth * 0.5 + UIScreen.main.bounds.width * leftPaddingScale * 0.33
+    }
+
+    /// 캐릭터가 각 통나무로 순차적으로 이동하는 애니메이션 시작
+    func startCharacterAnimation() {
+        guard !store.state.tokenQuestionText.isEmpty else { return }
+
+        isAnimating = true
+        currentLogIndex = 0
+
+        animateToNextLog()
+    }
+
+    /// 다음 통나무로 이동하는 애니메이션
+    func animateToNextLog() {
+        let logPositions = calculateLogPositions()
+
+        guard currentLogIndex < logPositions.count else {
+            // 모든 통나무를 방문했으면 화면 밖으로 나가는 애니메이션
+            animateCharacterOffScreen()
+            return
+        }
+
+        let targetLog = logPositions[currentLogIndex]
+        let characterCurrentCenterX = getCharacterCenterX() + characterOffsetX
+        let moveDistance = targetLog.centerX - characterCurrentCenterX
+
+        // 캐릭터를 현재 통나무 중앙으로 이동
+        withAnimation(.easeInOut(duration: 0.8)) {
+            characterOffsetX += moveDistance
+        }
+
+        // 0.8초 후에 다음 통나무로 이동 (약간의 대기 시간 포함)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            currentLogIndex += 1
+            animateToNextLog()
+        }
+    }
+
+    /// 캐릭터를 화면 밖으로 나가게 하는 애니메이션
+    func animateCharacterOffScreen() {
+        let screenWidth = UIScreen.main.bounds.width
+        let characterCurrentCenterX = getCharacterCenterX() + characterOffsetX
+
+        // 화면 오른쪽 끝으로부터 캐릭터 너비만큼 더 나가도록 계산
+        let characterWidth = UIImage.berryIdle.size.width * 2 * scaleFactor
+        let offScreenDistance = screenWidth - characterCurrentCenterX + characterWidth
+
+        // 화면 밖으로 나가는 애니메이션 (조금 더 빠르게)
+        withAnimation(.easeIn(duration: 1.2)) {
+            characterOffsetX += offScreenDistance
+        }
+    }
+
     /// ScrollView 내부 콘텐츠의 전체 너비를 계산하는 함수
     func calculateTotalWidth() -> CGFloat {
         let logWidth = UIImage.log.size.width * scaleFactor
