@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ContentView: View {
-   @State private var logEndingViewSize: CGSize = .zero
+    @State private var logEndingViewSize: CGSize = .zero
     @State private var isAnimating = false
    
    var body: some View {
