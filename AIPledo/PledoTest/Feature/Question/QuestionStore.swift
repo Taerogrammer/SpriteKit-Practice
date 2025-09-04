@@ -23,6 +23,7 @@ struct QuestionStore {
         var sentenceQuestionText: [QuestionTextType] = []
         var tokenQuestionText: [QuestionTextType] = []
         var isTouchable: Bool = true
+        var isShowingAnswer: Bool = false
     }
     
     enum Action {
@@ -34,6 +35,8 @@ struct QuestionStore {
         case fetchFailed(Error)
         case animationStarted
         case animationEnded
+        case showCorrectAnswer
+        case hideCorrectAnswer
     }
     
     var body: some ReducerOf<Self> {
@@ -89,6 +92,22 @@ struct QuestionStore {
                 return .none
                 
             case .animationEnded:
+                state.isTouchable = true
+                
+                return .none
+                
+            case .showCorrectAnswer:
+                state.isShowingAnswer = true
+                state.isTouchable = false
+                
+                return .run { send in
+                    try await Task.sleep(for: .seconds(2))
+                    
+                    await send(.hideCorrectAnswer)
+                }
+
+            case .hideCorrectAnswer:
+                state.isShowingAnswer = false
                 state.isTouchable = true
                 
                 return .none

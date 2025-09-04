@@ -187,6 +187,7 @@ struct QuestionView: View {
                     // MARK: - 정답
                     Button {
                         print("정답")
+                        store.send(.showCorrectAnswer)
                     } label: {
                         Image(uiImage: .btnCorrect)
                             .resizable()
@@ -248,6 +249,13 @@ struct QuestionView: View {
                 }
                 .padding()
             }
+            
+            if store.state.isShowingAnswer {
+                AnswerView(store: Store(initialState: AnswerStore.State()) {
+                  AnswerStore()
+                })
+            }
+            
         }
         .ignoresSafeArea()
         .onAppear {
