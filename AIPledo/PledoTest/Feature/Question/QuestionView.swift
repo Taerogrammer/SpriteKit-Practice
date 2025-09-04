@@ -24,7 +24,7 @@ struct QuestionView: View {
             ScrollViewReader { proxy in
                 // MARK: - 배경, 통나무, 나뭇잎, 배경 끝단
                 ScrollView(.horizontal) {
-                    ZStack {
+                    ZStack(alignment: .leading) {
                         // MARK: - 배경
                         Image(uiImage: .bg)
                             .resizable()
@@ -35,6 +35,15 @@ struct QuestionView: View {
                             )
                             .ignoresSafeArea()
                             .id("backgroundImage")
+                        
+                        Image(uiImage: store.isOn ? .berryIdle : .berrySmile)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: UIImage.berryIdle.size.width * scaleFactor,
+                                   height: UIImage.berryIdle.size.height * scaleFactor,
+                                   alignment: .leading)
+                            .offset(x: -UIScreen.main.bounds.width * leftPaddingScale + 30/*UIImage.berryIdle.size.width * 0.25*/,
+                                    y: -UIScreen.main.bounds.height * 0.2)
                         
                         // MARK: - 통나무 + 나뭇잎 + 배경 끝단
                         HStack(spacing: bridgeSpacing) { // 통나무 사이의 간격
@@ -176,7 +185,9 @@ struct QuestionView: View {
                 
                 HStack {
                     // MARK: - 정답
-                    Button { } label: {
+                    Button {
+                        print("정답")
+                    } label: {
                         Image(uiImage: .btnCorrect)
                             .resizable()
                             .frame(width: UIImage.btnCorrect.size.width * scaleFactor,
@@ -184,7 +195,9 @@ struct QuestionView: View {
                     }
                     
                     // MARK: - 오답
-                    Button { } label: {
+                    Button {
+                        print("오답")
+                    } label: {
                         Image(uiImage: .btnWrong)
                             .resizable()
                             .frame(width: UIImage.btnWrong.size.width * scaleFactor,
