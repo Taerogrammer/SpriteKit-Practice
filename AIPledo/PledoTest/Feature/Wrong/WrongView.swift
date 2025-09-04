@@ -37,8 +37,17 @@ struct WrongView: View {
                     .aspectRatio(contentMode: .fit)
                     .frame(width: UIImage.berry08.size.width * scaleFactor,
                            height: UIImage.berry08.size.height * scaleFactor)
-                    .offset(y: store.characterUPDownOffset)
+                    .offset(
+                        x: store.characterLeftRightOffset,
+                        y: store.characterUPDownOffset
+                    )
                     .animation(.linear(duration: 0.2).delay(0.1), value: store.isAnimated)
+                    .animation(
+                        store.shakeAnimation ?
+                        .easeInOut(duration: 0.08).repeatForever(autoreverses: true) :
+                        .default,
+                        value: store.characterLeftRightOffset
+                    )
             
                 Image(uiImage: .retryMent05)
                     .resizable()
@@ -47,7 +56,6 @@ struct WrongView: View {
                            height: UIImage.retryMent05.size.height * scaleFactor)
                     .offset(y: UIScreen.main.bounds.height * 0.35 + store.wrongMentOffset)
                     .animation(.linear(duration: 0.2).delay(0.1), value: store.isAnimated)
-
             }
         }
         .ignoresSafeArea()

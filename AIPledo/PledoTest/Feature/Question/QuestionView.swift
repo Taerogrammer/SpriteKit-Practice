@@ -198,6 +198,7 @@ struct QuestionView: View {
                     // MARK: - 오답
                     Button {
                         print("오답")
+                        store.send(.showWrongAnswer)
                     } label: {
                         Image(uiImage: .btnWrong)
                             .resizable()
@@ -253,6 +254,11 @@ struct QuestionView: View {
             if store.state.isShowingAnswer {
                 AnswerView(store: Store(initialState: AnswerStore.State()) {
                   AnswerStore()
+                })
+            }
+            if store.state.isShowingWrong {
+                WrongView(store: Store(initialState: WrongStore.State()) {
+                    WrongStore()
                 })
             }
             

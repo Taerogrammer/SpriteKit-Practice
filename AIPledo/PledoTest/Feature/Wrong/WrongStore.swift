@@ -14,6 +14,7 @@ struct WrongStore {
     @ObservableState
     struct State: Equatable {
         var isAnimated = false
+        var shakeAnimation = false
         var resultWrongOffset: CGFloat = -30
         var characterUPDownOffset: CGFloat = -30
         var characterLeftRightOffset: CGFloat = 0
@@ -23,6 +24,7 @@ struct WrongStore {
     enum Action {
         case onAppear
         case animateImages
+        case shakeAnimation
     }
     
     var body: some ReducerOf<Self> {
@@ -39,6 +41,14 @@ struct WrongStore {
                 state.characterUPDownOffset = 0
                 state.characterLeftRightOffset = 10
                 state.wrongMentOffset = 0
+                
+                return .run { send in
+                    try await Task.sleep(nanoseconds: 200_000_000)
+                    await send(.shakeAnimation)
+                }
+            case .shakeAnimation:
+                state.shakeAnimation = true
+                state.characterLeftRightOffset = -10
                 
                 return .none
             }
