@@ -250,7 +250,12 @@ struct QuestionView: View {
                 }
                 .padding()
             }
-            
+        }
+        .ignoresSafeArea()
+        .onAppear {
+            store.send(.onAppear)
+        }
+        .overlay {
             if store.state.isShowingAnswer {
                 AnswerView(store: Store(initialState: AnswerStore.State()) {
                   AnswerStore()
@@ -261,11 +266,6 @@ struct QuestionView: View {
                     WrongStore()
                 })
             }
-            
-        }
-        .ignoresSafeArea()
-        .onAppear {
-            store.send(.onAppear)
         }
     }
     
