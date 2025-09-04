@@ -254,6 +254,7 @@ struct QuestionView: View {
         .ignoresSafeArea()
         .onAppear {
             store.send(.onAppear)
+            printCharacterAndLogPositions()
         }
         .overlay {
             if store.state.isShowingAnswer {
@@ -310,6 +311,110 @@ struct QuestionView: View {
             
             store.send(.animationEnded)
         }
+    }
+    
+    /// 캐릭터의 중앙 X좌표 계산
+    func getCharacterCenterX() -> CGFloat {
+        let characterWidth = UIImage.berryIdle.size.width * scaleFactor
+        let characterOffsetX = -characterWidth * 0.5 + UIScreen.main.bounds.width * leftPaddingScale * 0.33
+        let characterCenterX = characterOffsetX + characterWidth / 2
+        
+        return characterCenterX
+    }
+
+    /// 모든 통나무들의 X좌표 (시작점, 중앙점, 끝점) 계산
+    func calculateLogPositions() -> [(index: Int, text: String, startX: CGFloat, centerX: CGFloat, endX: CGFloat)] {
+        var results: [(index: Int, text: String, startX: CGFloat, centerX: CGFloat, endX: CGFloat)] = []
+        
+        let leftPadding = UIScreen.main.bounds.width * leftPaddingScale
+        let logWidth = UIImage.log.size.width * scaleFactor
+        let blankWidth = UIImage.blankOn.size.width * scaleFactor
+        let spacing = bridgeSpacing
+        
+        var currentXOffset = leftPadding
+        
+        for (index, token) in store.state.tokenQuestionText.enumerated() {
+            switch token {
+            case .normal(let text):
+                let startX = currentXOffset
+                let centerX = currentXOffset + logWidth / 2
+                let endX = currentXOffset + logWidth
+                
+                results.append((
+                    index: index,
+                    text: text,
+                    startX: startX,
+                    centerX: centerX,
+                    endX: endX
+                ))
+                
+                currentXOffset += logWidth + spacing
+                
+            case .question(let strings):
+                let questionText = "빈칸(\(strings.joined(separator: ", ")))"
+                let startX = currentXOffset
+                let centerX = currentXOffset + blankWidth / 2
+                let endX = currentXOffset + blankWidth
+                
+                results.append((
+                    index: index,
+                    text: questionText,
+                    startX: startX,
+                    centerX: centerX,
+                    endX: endX
+                ))
+                
+                currentXOffset += blankWidth + spacing
+            }
+        }
+        
+        return results
+    }
+
+    /// 캐릭터와 통나무 위치 정보를 콘솔에 출력
+    func printCharacterAndLogPositions() {
+        let characterCenterX = getCharacterCenterX()
+        let logPositions = calculateLogPositions()
+        
+        print("===== 캐릭터 & 통나무 위치 정보 =====")
+        print("화면 너비: \(UIScreen.main.bounds.width)")
+        print("Scale Factor: \(scaleFactor)")
+        print("왼쪽 여백 비율: \(leftPaddingScale)")
+        print("통나무 간격: \(bridgeSpacing)")
+        print("")
+        
+        // 캐릭터 정보
+        let characterWidth = UIImage.berryIdle.size.width * scaleFactor
+        let characterOffsetX = -characterWidth * 0.5 + UIScreen.main.bounds.width * leftPaddingScale * 0.33
+        
+        print("🐻 캐릭터 위치:")
+        print("  너비: \(characterWidth)")
+        print("  offset X: \(characterOffsetX)")
+        print("  시작점: \(characterOffsetX)")
+        print("  중앙점: \(characterCenterX)")
+        print("  끝점: \(characterOffsetX + characterWidth)")
+        print("")
+        
+        // 통나무 정보
+        print("🪵 통나무 위치들:")
+        for logInfo in logPositions {
+            print("  통나무 \(logInfo.index + 1) [\(logInfo.text)]:")
+            print("    시작점: \(logInfo.startX)")
+            print("    중앙점: \(logInfo.centerX)")
+            print("    끝점: \(logInfo.endX)")
+            print("    캐릭터 중앙과의 거리: \(abs(logInfo.centerX - characterCenterX))")
+        }
+        
+        // 가장 가까운 통나무 찾기
+        if let closestLog = logPositions.min(by: { abs($0.centerX - characterCenterX) < abs($1.centerX - characterCenterX) }) {
+            let distance = abs(closestLog.centerX - characterCenterX)
+            print("")
+            print("🎯 캐릭터와 가장 가까운 통나무:")
+            print("  통나무 \(closestLog.index + 1) [\(closestLog.text)]")
+            print("  거리: \(distance)")
+        }
+        
+        print("=====================================")
     }
 }
 
