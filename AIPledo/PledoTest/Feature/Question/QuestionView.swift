@@ -42,13 +42,15 @@ struct QuestionView: View {
                             .frame(width: UIImage.berryIdle.size.width * scaleFactor,
                                    height: UIImage.berryIdle.size.height * scaleFactor,
                                    alignment: .leading)
-                            .offset(x: -UIScreen.main.bounds.width * leftPaddingScale + 30/*UIImage.berryIdle.size.width * 0.25*/,
+                            .background(.red)
+                        // -UIImage.berryIdle.size.width * scaleFactor * 0.5 => x = 0에서 캐릭터 절반으로 잘림
+                            .offset(x: -UIImage.berryIdle.size.width * scaleFactor * 0.5 + UIScreen.main.bounds.width * leftPaddingScale * 0.33,
                                     y: -UIScreen.main.bounds.height * 0.2)
                         
                         // MARK: - 통나무 + 나뭇잎 + 배경 끝단
                         HStack(spacing: bridgeSpacing) { // 통나무 사이의 간격
                             // MARK: - 왼쪽 여백
-                            Color.clear
+                            Color.black.opacity(0.7)
                                 .frame(width: UIScreen.main.bounds.width * leftPaddingScale)
                             
                             // MARK: - 통나무 + 나뭇잎
