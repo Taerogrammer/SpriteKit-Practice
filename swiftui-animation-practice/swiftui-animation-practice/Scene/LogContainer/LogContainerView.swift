@@ -10,9 +10,9 @@ import SwiftUI
 struct LogContainerView: View {
     var body: some View {
         HStack {
-            LogView()
-            LogView()
-            LogView()
+            LogView(entity: LogEntity(type: .question, word: "A"))
+            LogView(entity: LogEntity(type: .question, word: "A"))
+            LogView(entity: LogEntity(type: .question, word: "A"))
         }
     }
 }

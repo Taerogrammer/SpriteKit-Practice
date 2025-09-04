@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct LogView: View {
+    let entity: LogEntity
     var body: some View {
         ZStack {
             Image("log")
@@ -15,7 +16,7 @@ struct LogView: View {
                 .frame(height: UIScreen.main.bounds.height / 4)
                 .scaledToScreen()
 
-            Text("숫자")
+            Text(entity.word)
                 .font(.system(size: UIScreen.main.bounds.height / 16, weight: .bold, design: .default))
                 .foregroundColor(.white)
                 .scaledToScreen()
@@ -24,5 +25,5 @@ struct LogView: View {
 }
 
 #Preview(traits: .landscapeLeft) {
-    LogView()
+    LogView(entity: LogEntity(type: .beVerb, word: "AN"))
 }
