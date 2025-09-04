@@ -108,7 +108,8 @@ struct QuestionDTO: Decodable {
     }
 }
 
-struct LogEntity {
+struct LogEntity: Identifiable, Hashable {
+    let id = UUID()
     var type: LogType
     let word: String
 }

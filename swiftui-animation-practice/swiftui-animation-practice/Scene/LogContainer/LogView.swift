@@ -23,21 +23,25 @@ struct LogView: View {
     }
 
     var body: some View {
-        ZStack {
-            Image(imageName)
-                .resizable()
-                .frame(height: UIScreen.main.bounds.height / 4)
-                .scaledToScreen()
-                .onReceive(timer) { _ in
-                    if entity.type == .question {
-                        currentImageIndex = (currentImageIndex + 1) % questionImageNames.count
-                    }
+        // GeometryReader를 사용해 자신에게 주어진 공간의 크기를 파악합니다.
+        GeometryReader { geometry in
+            ZStack {
+                Image(imageName)
+                    .resizable()
+                    .scaledToFit() // 프레임에 맞게 비율을 유지하며 채움
+                
+                Text(entity.word)
+                    // 폰트 크기를 부모가 준 높이(geometry.size.height)에 비례하도록 설정
+                    .font(.system(size: geometry.size.height / 4, weight: .bold, design: .default))
+                    .foregroundColor(.white)
+            }
+            // ZStack 전체가 주어진 공간을 꽉 채우도록 합니다.
+            .frame(width: geometry.size.width, height: geometry.size.height)
+            .onReceive(timer) { _ in
+                if entity.type == .question {
+                    currentImageIndex = (currentImageIndex + 1) % questionImageNames.count
                 }
-            
-            Text(entity.word)
-                .font(.system(size: UIScreen.main.bounds.height / 16, weight: .bold, design: .default))
-                .foregroundColor(.white)
-                .scaledToScreen()
+            }
         }
     }
 }
