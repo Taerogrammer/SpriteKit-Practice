@@ -194,7 +194,6 @@ struct QuestionView: View {
                     // MARK: - 정답
                     Button {
                         store.send(.showCorrectAnswer)
-                        startCharacterAnimation()
                     } label: {
                         Image(uiImage: .btnCorrect)
                             .resizable()
@@ -264,6 +263,13 @@ struct QuestionView: View {
         .onChange(of: store.state.tokenQuestionText) { newValue in
             if !newValue.isEmpty {
                 printCharacterAndLogPositions()
+            }
+        }
+        .onChange(of: store.state.isShowingAnswer) { oldValue, newValue in
+            if oldValue && !newValue {
+                DispatchQueue.main.asyncAfter(deadline: .now()) {
+                    startCharacterAnimation()
+                }
             }
         }
         .overlay {
