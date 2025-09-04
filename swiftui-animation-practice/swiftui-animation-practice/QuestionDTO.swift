@@ -51,8 +51,8 @@ struct QuestionDTO: Decodable {
     }
     
     /// `questionUC`를 파싱해서 TextResponse 배열로 반환하는 메서드
-    func parseToTextResponses() -> [TextResponse] {
-        var textResponses: [TextResponse] = []
+    func parseToTextResponses() -> [LogEntity] {
+        var textResponses: [LogEntity] = []
         let questionUC = self.questionUC
         var currentIndex = questionUC.startIndex
         
@@ -71,7 +71,7 @@ struct QuestionDTO: Decodable {
                 for option in options {
                     let trimmedOption = option.trimmingCharacters(in: .whitespacesAndNewlines)
                     if !trimmedOption.isEmpty {
-                        textResponses.append(TextResponse(type: .question, word: trimmedOption))
+                        textResponses.append(LogEntity(type: .question, word: trimmedOption))
                     }
                 }
                 
@@ -96,7 +96,7 @@ struct QuestionDTO: Decodable {
                     let cleanWord = word.trimmingCharacters(in: CharacterSet.punctuationCharacters)
                     if !cleanWord.isEmpty {
                         let type: LogType = Self.beVerbs.contains(cleanWord.uppercased()) ? .beVerb : .subject
-                        textResponses.append(TextResponse(type: type, word: cleanWord))
+                        textResponses.append(LogEntity(type: type, word: cleanWord))
                     }
                 }
                 
@@ -108,7 +108,7 @@ struct QuestionDTO: Decodable {
     }
 }
 
-struct TextResponse {
+struct LogEntity {
     var type: LogType
     let word: String
 }

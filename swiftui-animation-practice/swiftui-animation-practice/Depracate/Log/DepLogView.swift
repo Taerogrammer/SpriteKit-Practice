@@ -71,11 +71,11 @@ struct DepLogContainerView: View {
     }
     
     // MARK: - TextResponse 배열을 연속된 같은 타입별로 그룹화
-    private func groupResponsesByType(_ responses: [TextResponse]) -> [[TextResponse]] {
+    private func groupResponsesByType(_ responses: [LogEntity]) -> [[LogEntity]] {
         guard !responses.isEmpty else { return [] }
         
-        var groups: [[TextResponse]] = []
-        var currentGroup: [TextResponse] = [responses[0]]
+        var groups: [[LogEntity]] = []
+        var currentGroup: [LogEntity] = [responses[0]]
         
         for i in 1..<responses.count {
             if responses[i].type == currentGroup.last?.type {
