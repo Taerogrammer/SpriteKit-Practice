@@ -186,7 +186,6 @@ struct QuestionView: View {
                 HStack {
                     // MARK: - 정답
                     Button {
-                        print("정답")
                         store.send(.showCorrectAnswer)
                     } label: {
                         Image(uiImage: .btnCorrect)
@@ -197,7 +196,6 @@ struct QuestionView: View {
                     
                     // MARK: - 오답
                     Button {
-                        print("오답")
                         store.send(.showWrongAnswer)
                     } label: {
                         Image(uiImage: .btnWrong)
