@@ -12,9 +12,8 @@ struct LogView: View {
         ZStack {
             Image("log")
                 .resizable()
+                .frame(height: UIScreen.main.bounds.height / 4)
                 .scaledToScreen()
-                .frame(width: 293, height: 215)
-                
 
             Text("숫자")
                 .font(.system(size: 36, weight: .bold, design: .default))
