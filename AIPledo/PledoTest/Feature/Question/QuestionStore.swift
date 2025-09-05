@@ -33,8 +33,34 @@ struct QuestionStore {
 
         // MARK: - Animation State
         var characterOffsetX: CGFloat = 0
+        var characterOffsetY: CGFloat = 0
         var currentLogIndex: Int = 0
         var isAnimating: Bool = false
+        
+        // 포물선 애니메이션을 위한 새로운 상태들
+        var animationProgress: CGFloat = 0 // 0.0 ~ 1.0
+        var animationStartX: CGFloat = 0
+        var animationEndX: CGFloat = 0
+        var isJumping: Bool = false
+        
+        // 포물선 계산을 위한 computed property
+        var parabolicOffsetY: CGFloat {
+            guard isJumping else { return 0 }
+            
+            // 마지막 점프일 때는 더 높게
+            let isLastJump = currentLogIndex > tokenQuestionText.count
+            let baseHeight: CGFloat = isLastJump ? 120 : 100 // 마지막은 더 높게
+            let h: CGFloat = baseHeight * scaleFactor
+            let x = animationProgress
+            return 2 * h * x * (x - 1)
+        }
+        
+        var parabolicOffsetX: CGFloat {
+            guard isJumping else { return characterOffsetX }
+            
+            // X축은 선형 보간
+            return animationStartX + (animationEndX - animationStartX) * animationProgress
+        }
 
         // MARK: - Computed Properties
         var sentenceQuestionText: [QuestionTextType] {
@@ -111,7 +137,10 @@ struct QuestionStore {
         // MARK: - Animation Actions
         case startCharacterAnimation
         case animateToNextLog
-        case characterAnimationFinished
+
+        case startParabolicJump(from: CGFloat, to: CGFloat)
+        case updateParabolicProgress(CGFloat)
+        case finishParabolicJump
     }
 
     var body: some ReducerOf<Self> {
@@ -148,8 +177,11 @@ struct QuestionStore {
             case .passButtonClicked:
                 // 다음 문제로 넘어갈 때 애니메이션 상태 초기화
                 state.characterOffsetX = 0
+                state.characterOffsetY = 0
                 state.currentLogIndex = 0
                 state.isAnimating = false
+                state.isJumping = false
+                state.animationProgress = 0
 
                 let nextQuizID = (state.quizID % state.questions.count) + 1
                 state.quizID = nextQuizID
@@ -195,34 +227,74 @@ struct QuestionStore {
                 guard !state.tokenQuestionText.isEmpty else { return .none }
                 state.isAnimating = true
                 state.currentLogIndex = 0
-                return .send(.animateToNextLog, animation: .easeInOut(duration: Constant.characterAnimationDuration))
+                state.characterOffsetY = 0
+                state.isJumping = false
+                state.animationProgress = 0
+                return .send(.animateToNextLog)
 
             case .animateToNextLog:
                 let logPositions = state.logPositions
 
                 guard state.currentLogIndex < logPositions.count else {
-                    return .send(.characterAnimationFinished, animation: .easeIn(duration: 1.2))
+                    state.currentLogIndex += 1
+                    let screenWidth = UIScreen.main.bounds.width
+                    let characterWidth = UIImage.berryIdle.size.width * 2 * state.scaleFactor
+                    let currentCharacterX = state.characterCurrentCenterX
+                    let offScreenTargetX = screenWidth + characterWidth * 0.7 // 화면 밖 목표 지점
+                    
+                    return .send(.startParabolicJump(from: currentCharacterX, to: offScreenTargetX))
                 }
 
                 let targetLogCenterX = logPositions[state.currentLogIndex]
-                let moveDistance = targetLogCenterX - state.characterCurrentCenterX
-                state.characterOffsetX += moveDistance
+                let currentCharacterX = state.characterCurrentCenterX
+                
                 state.currentLogIndex += 1
 
+                return .send(.startParabolicJump(from: currentCharacterX, to: targetLogCenterX))
+
+            case .startParabolicJump(let fromX, let toX):
+                state.isJumping = true
+                state.animationProgress = 0
+                state.animationStartX = fromX - state.characterCurrentCenterX + state.characterOffsetX
+                state.animationEndX = toX - state.characterCurrentCenterX + state.characterOffsetX
+                
                 return .run { send in
-                    try await Task.sleep(for: .seconds(Constant.characterAnimationDuration + Constant.characterAnimationDelay))
-                    await send(.animateToNextLog, animation: .easeInOut(duration: Constant.characterAnimationDuration))
+                    let duration: Double = Constant.characterAnimationDuration
+                    let steps = Int(duration * 60) // 60fps
+                    
+                    for step in 1...steps {
+                        let progress = CGFloat(step) / CGFloat(steps)
+                        try await Task.sleep(for: .seconds(duration / Double(steps)))
+                        await send(.updateParabolicProgress(progress))
+                    }
+                    
+                    await send(.finishParabolicJump)
                 }
 
-            case .characterAnimationFinished:
-                let screenWidth = UIScreen.main.bounds.width
-                let characterWidth = UIImage.berryIdle.size.width * 2 * state.scaleFactor
-                let offScreenDistance = screenWidth - state.characterCurrentCenterX + characterWidth
-                state.characterOffsetX += offScreenDistance
+            case .updateParabolicProgress(let progress):
+                state.animationProgress = progress
+                return .none
 
-                return .run { send in
-                    try await Task.sleep(for: .seconds(1.2))
-                    await send(.passButtonClicked)
+            case .finishParabolicJump:
+                print("점프 완료 - currentLogIndex: \(state.currentLogIndex), tokenCount: \(state.tokenQuestionText.count)")
+                state.isJumping = false
+                state.characterOffsetX = state.animationEndX
+                state.characterOffsetY = 0
+                state.animationProgress = 0
+                
+                // 모든 통나무를 방문했는지 확인
+                if state.currentLogIndex > state.tokenQuestionText.count {
+                    // 마지막 점프가 끝났으면 다음 문제로
+                    return .run { send in
+                        try await Task.sleep(for: .seconds(0.5)) // 잠깐 대기
+                        await send(.passButtonClicked)
+                    }
+                } else {
+                    // 아직 더 방문할 통나무가 있으면 계속
+                    return .run { send in
+                        try await Task.sleep(for: .seconds(Constant.characterAnimationDelay))
+                        await send(.animateToNextLog)
+                    }
                 }
             }
         }

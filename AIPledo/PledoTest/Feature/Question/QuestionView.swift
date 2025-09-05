@@ -35,16 +35,17 @@ struct QuestionView: View {
                             .scaledToFit()
                             .frame(width: UIImage.berryIdle.size.width * store.scaleFactor,
                                    height: UIImage.berryIdle.size.height * store.scaleFactor)
-                            .offset(x: store.initialCharacterOffsetX + store.characterOffsetX,
-                                    y: -UIScreen.main.bounds.height * 0.2)
+                            .offset(
+                                x: store.initialCharacterOffsetX + (store.isJumping ? store.parabolicOffsetX : store.characterOffsetX),
+                                y: -UIScreen.main.bounds.height * 0.2 + (store.isJumping ? store.parabolicOffsetY : store.characterOffsetY)
+                            )
                             .zIndex(1.0)
-                            .animation(.default, value: store.characterOffsetX)
+                            .animation(.linear(duration: 0.016), value: store.animationProgress)
 
                         HStack(spacing: 20) { // bridgeSpacing
                             Color.clear
                                 .frame(width: UIScreen.main.bounds.width * 0.2) // leftPaddingScale
 
-                            // --- 생략되었던 통나무/빈칸 UI 코드 ---
                             ForEach(store.tokenQuestionText, id: \.self) { word in
                                 switch word {
                                 case .normal(let text):
@@ -91,7 +92,6 @@ struct QuestionView: View {
                                     }
                                 }
                             }
-                            // --- 여기까지 ---
 
                             Image(uiImage: .bgEnd)
                                 .resizable()
@@ -142,7 +142,6 @@ struct QuestionView: View {
                             .disabled(!store.isTouchable)
                         }
                     }
-                    // --- 여기까지 ---
 
                     Spacer()
 
@@ -204,7 +203,6 @@ struct QuestionView: View {
                             .shadow(color: .black, radius: 0, x: 1, y: -1)
                             .shadow(color: .black, radius: 0, x: -1, y: -1)
                     }
-                    // --- 여기까지 ---
                 }
                 .padding()
             }
