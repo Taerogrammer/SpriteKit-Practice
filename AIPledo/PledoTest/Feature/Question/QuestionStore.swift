@@ -47,13 +47,18 @@ struct QuestionStore {
         var parabolicOffsetY: CGFloat {
             guard isJumping else { return 0 }
             
-            // 마지막 점프일 때는 더 높게
             let isLastJump = currentLogIndex > tokenQuestionText.count
-            let baseHeight: CGFloat = isLastJump ? 120 : 100 // 마지막은 더 높게
+            let baseHeight: CGFloat = isLastJump ? 120 : 100
             let h: CGFloat = baseHeight * scaleFactor
-            let x = animationProgress
-            return 2 * h * x * (x - 1)
+            
+            let easedProgress = easeInOutProgress(animationProgress)
+            let x = easedProgress
+            return 2 * h * x * (x - 1) // 위로 볼록한 포물선
         }
+        
+        private func easeInOutProgress(_ t: CGFloat) -> CGFloat {
+              return t * t * (3.0 - 2.0 * t) // smoothstep 함수
+          }
         
         var parabolicOffsetX: CGFloat {
             guard isJumping else { return characterOffsetX }
@@ -253,23 +258,26 @@ struct QuestionStore {
                 return .send(.startParabolicJump(from: currentCharacterX, to: targetLogCenterX))
 
             case .startParabolicJump(let fromX, let toX):
-                state.isJumping = true
-                state.animationProgress = 0
-                state.animationStartX = fromX - state.characterCurrentCenterX + state.characterOffsetX
-                state.animationEndX = toX - state.characterCurrentCenterX + state.characterOffsetX
-                
-                return .run { send in
-                    let duration: Double = Constant.characterAnimationDuration
-                    let steps = Int(duration * 60) // 60fps
-                    
-                    for step in 1...steps {
-                        let progress = CGFloat(step) / CGFloat(steps)
-                        try await Task.sleep(for: .seconds(duration / Double(steps)))
-                        await send(.updateParabolicProgress(progress))
-                    }
-                    
-                    await send(.finishParabolicJump)
-                }
+                 state.isJumping = true
+                 state.animationProgress = 0
+                 state.animationStartX = fromX - state.characterCurrentCenterX + state.characterOffsetX
+                 state.animationEndX = toX - state.characterCurrentCenterX + state.characterOffsetX
+                 
+                 return .run { send in
+                     let duration: Double = Constant.characterAnimationDuration
+                     let fps: Double = 120
+                     let steps = Int(duration * fps)
+                     let frameTime = duration / Double(steps)
+                     
+                     for step in 1...steps {
+                         let progress = CGFloat(step) / CGFloat(steps)
+                         
+                         try await Task.sleep(nanoseconds: UInt64(frameTime * 1_000_000_000))
+                         await send(.updateParabolicProgress(progress))
+                     }
+                     
+                     await send(.finishParabolicJump)
+                 }
 
             case .updateParabolicProgress(let progress):
                 state.animationProgress = progress

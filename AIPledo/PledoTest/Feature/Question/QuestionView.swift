@@ -40,7 +40,7 @@ struct QuestionView: View {
                                 y: -UIScreen.main.bounds.height * 0.2 + (store.isJumping ? store.parabolicOffsetY : store.characterOffsetY)
                             )
                             .zIndex(1.0)
-                            .animation(.linear(duration: 0.016), value: store.animationProgress)
+                            .animation(.linear(duration: 0.008), value: store.animationProgress)
 
                         HStack(spacing: 20) { // bridgeSpacing
                             Color.clear
