@@ -48,7 +48,7 @@ struct WrongStore {
                 }
             case .shakeAnimation:
                 state.shakeAnimation = true
-                state.characterLeftRightOffset = -10
+                state.characterLeftRightOffset = -50
                 
                 return .none
             }

@@ -38,7 +38,7 @@ struct WrongView: View {
                     .frame(width: UIImage.berry08.size.width * scaleFactor,
                            height: UIImage.berry08.size.height * scaleFactor)
                     .offset(
-                        x: store.characterLeftRightOffset,
+                        x: store.characterLeftRightOffset + 25,
                         y: store.characterUPDownOffset
                     )
                     .animation(.linear(duration: 0.2).delay(0.1), value: store.isAnimated)
